@@ -23,10 +23,10 @@ def main(model_name):
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
     model = AutoModelForCausalLM.from_pretrained(
-        model_name)
+        model_name,
+        device='cuda:0')
 
     training_args = SFTConfig(
-        use_cpu=True,
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,  # Keeps VRAM floor minimal
         gradient_accumulation_steps=16,  # Simulates a batch size of 16
