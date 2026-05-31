@@ -50,6 +50,6 @@ def main(model_name):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--model_name", default="Qwen/Qwen3-0.6B-Base")
+    parser.add_argument("--model_name", default="Qwen/Qwen3-1.7B-Base")
     args = parser.parse_args()
     main(args.model_name)
