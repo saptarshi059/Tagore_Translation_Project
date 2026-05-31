@@ -1,3 +1,6 @@
+import os
+os.environ['TOKENIZERS_PARALLELISM'] = "false"
+
 from transformers import AutoModelForCausalLM
 from trl import SFTConfig, SFTTrainer
 from argparse import ArgumentParser
