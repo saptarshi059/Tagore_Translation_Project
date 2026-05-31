@@ -1,0 +1,54 @@
+from transformers import AutoModelForCausalLM
+from trl import SFTConfig, SFTTrainer
+from argparse import ArgumentParser
+from datasets import load_dataset
+from prompts import SYSTEM_PROMPT
+
+
+def preprocess_function(example):
+    return {"messages":[{"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}\n\n"
+                                                    f"RELATED ENGLISH POEM (SHAKESPEARE): {example['nearest_shakespeare_sonnet']}"},
+                        {"role": "assistant", "content": f"TRANSLATION: {example['english_version']}"}]}
+
+
+def main(model_name):
+    print('Loading dataset...')
+    dataset = load_dataset('csv', data_files="../data/parsed_source/train.csv", split='train')
+
+    print('Formatting dataset...')
+    dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name)
+
+    training_args = SFTConfig(
+        use_cpu=True,
+        output_dir="./bn_en_model",
+        per_device_train_batch_size=1,  # Keeps VRAM floor minimal
+        gradient_accumulation_steps=16,  # Simulates a batch size of 16
+        learning_rate=2e-4,
+        fp16=True,  # Ensures half-precision execution
+        logging_steps=10,
+        assistant_only_loss=False,
+        gradient_checkpointing=True,
+    )
+
+    trainer = SFTTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=dataset,
+    )
+    
+    print("Starting training...")
+    trainer.train()
+
+    print('Training done, saving model...')
+    trainer.save_model()
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--model_name", default="Qwen/Qwen3-0.6B-Base")
+    args = parser.parse_args()
+    main(args.model_name)
