@@ -38,10 +38,11 @@ def main(model_name):
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
+    print('Generating...')
     with torch.no_grad():
-        generated_ids = model.generate(**model_inputs, max_new_tokens=200)
+        generated_ids = model.generate(**model_inputs, max_new_tokens=300)
 
-    decoded_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
+    decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(f'Original Work (Gold): {gold}\n')
     print(f'Replicated Style (translation): {decoded_text}')
 
