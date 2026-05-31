@@ -31,7 +31,7 @@ def main(model_name):
         gradient_accumulation_steps=8,
         learning_rate=4e-5,
         logging_steps=5,
-        assistant_only_loss=True,
+        assistant_only_loss=False,
         gradient_checkpointing=True,
     )
 
