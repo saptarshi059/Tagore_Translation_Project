@@ -22,11 +22,11 @@ def main(model_name):
     print('Loading dataset...')
     dataset = load_dataset('csv', data_files="../data/parsed_source/test.csv", split='train')
 
-    print('Formatting dataset...')
-    dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
-
     gold = dataset[0]['english_version']
     print(f'Original Work (Gold): {gold}\n')
+
+    print('Formatting dataset...')
+    dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
     model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
