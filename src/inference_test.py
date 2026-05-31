@@ -29,7 +29,7 @@ def main(model_name):
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
     model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     text = tokenizer.apply_chat_template(
         dataset['messages'][0],  # Since there is only 1 test sample
