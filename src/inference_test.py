@@ -44,7 +44,7 @@ def main(model_name):
         generated_ids = model.generate(**model_inputs, max_new_tokens=300)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-    print(f'Replicated Style (translation): {decoded_text}')
+    print(f'Replicated Style (translation): {decoded_text.split(dataset['messages'][0])[-1].strip()}')
 
 
 if __name__ == "__main__":
