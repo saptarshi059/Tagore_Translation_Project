@@ -22,11 +22,13 @@ def main(model_name):
     print('Loading dataset...')
     dataset = load_dataset('csv', data_files="../data/parsed_source/test.csv", split='train')
 
+    gold = dataset[0]['english_version']
+
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
     model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     text = tokenizer.apply_chat_template(
         dataset[0],  # Since there is only 1 test sample
@@ -40,7 +42,8 @@ def main(model_name):
         generated_ids = model.generate(**model_inputs, max_new_tokens=200)
 
     decoded_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
-    print(decoded_text)
+    print(f'Original Work (Gold): {gold}\n')
+    print(f'Replicated Style (translation): {decoded_text}')
 
 
 if __name__ == "__main__":
