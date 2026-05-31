@@ -22,17 +22,15 @@ def main(model_name):
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        device_map='auto')
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,  # Keeps VRAM floor minimal
-        gradient_accumulation_steps=16,  # Simulates a batch size of 16
-        learning_rate=2e-4,
+        gradient_accumulation_steps=4,  # Simulates a batch size of 16
+        learning_rate=3e-4,
         fp16=True,  # Ensures half-precision execution
-        logging_steps=10,
+        logging_steps=5,
         assistant_only_loss=False,
         gradient_checkpointing=True,
     )
