@@ -24,7 +24,7 @@ def main(model_name):
 
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        device='cuda:0')
+        device_map='auto')
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
