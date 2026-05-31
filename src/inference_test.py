@@ -1,0 +1,50 @@
+import os
+
+os.environ['TOKENIZERS_PARALLELISM'] = "false"
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from argparse import ArgumentParser
+from datasets import load_dataset
+from prompts import SYSTEM_PROMPT
+import torch
+
+
+def preprocess_function(example):
+    return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
+                         {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}\n\n"
+                                                     f"RELATED ENGLISH POEM (SHAKESPEARE): {example['nearest_shakespeare_sonnet']}"
+                          }]
+            }
+
+
+def main(model_name):
+    print('Loading dataset...')
+    dataset = load_dataset('csv', data_files="../data/parsed_source/test.csv", split='train')
+
+    print('Formatting dataset...')
+    dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
+
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    text = tokenizer.apply_chat_template(
+        dataset[0],  # Since there is only 1 test sample
+        tokenize=False,
+        add_generation_prompt=True,
+        enable_thinking=False
+    )
+    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+
+    with torch.no_grad():
+        generated_ids = model.generate(**model_inputs, max_new_tokens=200)
+
+    decoded_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
+    print(decoded_text)
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--model_name", default="bn_en_model")
+    args = parser.parse_args()
+    main(args.model_name)
