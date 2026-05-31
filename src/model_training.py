@@ -28,7 +28,7 @@ def main(model_name):
     training_args = SFTConfig(
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=8,
+        gradient_accumulation_steps=16,
         learning_rate=5e-5,
         logging_steps=5,
         assistant_only_loss=False,
