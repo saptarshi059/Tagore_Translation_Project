@@ -1,5 +1,6 @@
 import os
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
+os.environ['CUDA_VISIBLE_DEVICES']= "0"
 
 from transformers import AutoModelForCausalLM
 from trl import SFTConfig, SFTTrainer
@@ -28,7 +29,7 @@ def main(model_name):
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,
         gradient_accumulation_steps=8,
-        learning_rate=3e-5,
+        learning_rate=5e-5,
         logging_steps=5,
         assistant_only_loss=False,
         gradient_checkpointing=True,
