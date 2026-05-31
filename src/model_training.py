@@ -26,10 +26,9 @@ def main(model_name):
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
-        per_device_train_batch_size=1,  # Keeps VRAM floor minimal
-        gradient_accumulation_steps=4,  # Simulates a batch size of 16
-        learning_rate=3e-4,
-        fp16=True,  # Ensures half-precision execution
+        per_device_train_batch_size=1,
+        gradient_accumulation_steps=8,
+        learning_rate=2e-5,
         logging_steps=5,
         assistant_only_loss=False,
         gradient_checkpointing=True,
