@@ -31,7 +31,7 @@ def main(model_name):
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     text = tokenizer.apply_chat_template(
-        dataset[0],  # Since there is only 1 test sample
+        dataset['messages'][0],  # Since there is only 1 test sample
         tokenize=False,
         add_generation_prompt=True,
         enable_thinking=False
