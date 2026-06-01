@@ -28,7 +28,7 @@ def main(model_name):
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,
         gradient_accumulation_steps=8,
-        learning_rate=2e-5,
+        learning_rate=4e-5,
         logging_steps=5,
         assistant_only_loss=False,
         gradient_checkpointing=True,
@@ -49,6 +49,6 @@ def main(model_name):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--model_name", default="Qwen/Qwen3-1.7B-Base")
+    parser.add_argument("--model_name", default="Qwen/Qwen3-0.6B-Base")
     args = parser.parse_args()
     main(args.model_name)
