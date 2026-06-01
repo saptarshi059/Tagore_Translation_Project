@@ -12,7 +12,8 @@ import torch
 
 def preprocess_function(example):
     return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
-                         {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}"
+                         {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}\n\n"
+                                                     f"ENGLISH TRANSLATION: {example['english_version']}"
                           }]
             }
 
