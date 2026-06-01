@@ -11,9 +11,8 @@ from prompts import SYSTEM_PROMPT
 
 def preprocess_function(example):
     return {"messages":[{"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}\n\n"
-                                                    f"RELATED ENGLISH POEM (SHAKESPEARE): {example['nearest_shakespeare_sonnet']}"},
-                        {"role": "assistant", "content": f"TRANSLATION: {example['english_version']}"}]}
+                        {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}"},
+                        {"role": "assistant", "content": f"ENGLISH (SHAKESPEARE) TRANSLATION: {example['nearest_shakespeare_sonnet']}"}]}
 
 
 def main(model_name):
