@@ -6,12 +6,13 @@ os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from argparse import ArgumentParser
 from datasets import load_dataset
+from prompts import SYSTEM_PROMPT
 import torch
 
 
 def preprocess_function(example):
-    return {"messages": [{"role": "system", "content": "Translate the given Bengali poem to English, in the style of William Shakespeare."},
-                         {"role": "user", "content": f"BENGALI POEM (TAGORE): {example['bengali_version']}"
+    return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
+                         {"role": "user", "content": f"ORIGINAL BENGALI: {example['bengali_version']}"
                           }]
             }
 
