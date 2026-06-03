@@ -45,8 +45,7 @@ entire high-fidelity BN-EN dataset was ready: `parallel_text.csv`.
 
 ### Train/Test
 
-For training my model, I wanted to use most of the poems, but leave 1 for evaluation - _Where the mind is without fear_: 
-this is the only poem that I can sort of understand deeply 😅.
+For training my model, I wanted to use most of the poems, but leave 1 for evaluation - _Where the mind is without fear_. This is the only poem that I can sort of understand deeply 😅.
 
 ## Model Training
 
