@@ -1,5 +1,7 @@
+from transformers import AutoModelForCausalLM, AutoTokenizer, DataCollatorWithPadding
 from torch.utils.data import Dataset, DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from src.common.prompts import SYSTEM_PROMPT
+from tqdm import tqdm
 import pandas as pd
 import torch
 
@@ -13,37 +15,46 @@ class TranslationGenDS(Dataset):
         return len(self.ds)
 
     def __getitem__(self, idx):
-        instance = self.ds[idx]
-        tokenized_sample = self.tokenizer(instance, return_tensors='pt', padding=True)
-        return {
-            "input_ids": tokenized_sample['input_ids'],
-            "attention_mask": tokenized_sample['attention_mask']
-        }
-
+        instance = self.ds[idx]['content']
+        formatted_instance = {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
+                                           {"role": "user", "content": f"ORIGINAL BENGALI: {instance}"}]}
+        text = self.tokenizer.apply_chat_template(
+            formatted_instance,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        tokenized_sample = self.tokenizer(text)
+        return tokenized_sample
 
 
 def main():
     print('Loading SFT model...')
     checkpoint = '../SFT_code/bn_en_model/'
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
-
-    base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv').to_dict('records')
-    torch_ds = TranslationGenDS(base_poems, tokenizer)
-    torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False)
-
-    for batch in torch_dataloader:
-        print(batch)
-        exit()
-
-
     model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
         torch_dtype="auto",
         device_map="auto"
     )
 
+    base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv').to_dict('records')
+    torch_ds = TranslationGenDS(base_poems, tokenizer)
+    torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
 
-
+    generations = []
+    with torch.no_grad():
+        for batch in tqdm(torch_dataloader):
+            generated_ids = model.generate(
+                **batch,
+                max_new_tokens=300,
+                do_sample=True,
+                temperature=0.8,
+                top_p=0.9,
+                num_return_sequences=3
+            )
+            outputs = tokenizer.batch_decode(generated_ids)
+            print(outputs)
+            break
 
 
 if __name__ == "__main__":
