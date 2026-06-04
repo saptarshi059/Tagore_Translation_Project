@@ -23,8 +23,8 @@ class TranslationGenDS(Dataset):
 
     def __getitem__(self, idx):
         instance = self.ds[idx]['content']
-        formatted_instance = {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
-                                           {"role": "user", "content": f"ORIGINAL BENGALI: {instance}"}]}
+        formatted_instance = [{"role": "system", "content": SYSTEM_PROMPT},
+                              {"role": "user", "content": f"ORIGINAL BENGALI: {instance}"}]
         text = self.tokenizer.apply_chat_template(
             formatted_instance,
             tokenize=False,
