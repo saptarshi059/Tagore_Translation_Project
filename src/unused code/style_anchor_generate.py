@@ -4,7 +4,7 @@ import pandas as pd
 import bm25s
 
 def main():
-    base_path = Path("../data/parsed_source")
+    base_path = Path("../../data/parsed_source")
 
     print('Loading Shakespeare poems...')
     shakespeare_poems = pd.read_csv(base_path / "shakespeare_parsed.csv")
