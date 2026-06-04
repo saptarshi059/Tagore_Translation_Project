@@ -65,7 +65,7 @@ def main():
     print("Saving generations...")
     base_poems = base_poems.loc[base_poems.index.repeat(3)]
     base_poems['raw_generations'] = generations
-
+    base_poems.to_csv('../../data/DPO_data/raw_translations.csv', index=False)
 
 if __name__ == "__main__":
     main()
