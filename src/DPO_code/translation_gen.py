@@ -37,7 +37,7 @@ class TranslationGenDS(Dataset):
 def main():
     print('Loading SFT model...')
     checkpoint = '../SFT_code/bn_en_model/'
-    tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True, padding_side='left')
     model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
         torch_dtype="auto",
@@ -52,7 +52,8 @@ def main():
     with torch.no_grad():
         for batch in tqdm(torch_dataloader):
             generated_ids = model.generate(
-                **batch,
+                input_ids = batch['input_ids'].to(model.device),
+                attention_mask = batch['attention_mask'].to(model.device),
                 max_new_tokens=300,
                 do_sample=True,
                 temperature=0.8,
