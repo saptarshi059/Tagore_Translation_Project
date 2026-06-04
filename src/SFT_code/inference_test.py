@@ -19,7 +19,7 @@ def preprocess_function(example):
 
 def main(model_name):
     print('Loading dataset...')
-    dataset = load_dataset('csv', data_files="../data/parsed_source/test.csv", split='train')
+    dataset = load_dataset('csv', data_files="../../data/SFT_data/test.csv", split='train')
 
     gold = dataset[0]['english_version']
     print(f'Original Work (Gold): {gold}\n')

@@ -17,7 +17,7 @@ def preprocess_function(example):
 
 def main(model_name):
     print('Loading dataset...')
-    dataset = load_dataset('csv', data_files="../data/parsed_source/train.csv", split='train')
+    dataset = load_dataset('csv', data_files="../../data/SFT_data/train.csv", split='train')
 
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
