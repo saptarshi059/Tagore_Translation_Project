@@ -15,7 +15,7 @@ from prompts import SYSTEM_PROMPT
 
 class TranslationGenDS(Dataset):
     def __init__(self, base_ds, tok):
-        self.ds = base_ds
+        self.ds = base_ds.to_dict('records')
         self.tokenizer = tok
 
     def __len__(self):
@@ -40,11 +40,11 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True, padding_side='left')
     model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
-        torch_dtype="auto",
+        dtype="auto",
         device_map="auto"
     )
 
-    base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv').to_dict('records')
+    base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv')
     torch_ds = TranslationGenDS(base_poems, tokenizer)
     torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
 
@@ -60,9 +60,11 @@ def main():
                 top_p=0.9,
                 num_return_sequences=3
             )
-            outputs = tokenizer.batch_decode(generated_ids)
-            print(outputs)
-            break
+            generations.extend(tokenizer.batch_decode(generated_ids, skip_special_tokens=True))
+
+    print("Saving generations...")
+    base_poems = base_poems.loc[base_poems.index.repeat(3)]
+    base_poems['raw_generations'] = generations
 
 
 if __name__ == "__main__":
