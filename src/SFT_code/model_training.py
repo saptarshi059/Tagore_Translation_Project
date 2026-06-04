@@ -6,7 +6,10 @@ from transformers import AutoModelForCausalLM
 from trl import SFTConfig, SFTTrainer
 from argparse import ArgumentParser
 from datasets import load_dataset
-from src.common.prompts import SYSTEM_PROMPT
+
+import sys
+sys.path.append("../common")
+from prompts import SYSTEM_PROMPT
 
 
 def preprocess_function(example):

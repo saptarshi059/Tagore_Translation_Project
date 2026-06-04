@@ -1,9 +1,16 @@
+import os
+os.environ['TOKENIZERS_PARALLELISM'] = "false"
+os.environ['CUDA_VISIBLE_DEVICES']= "0"
+
 from transformers import AutoModelForCausalLM, AutoTokenizer, DataCollatorWithPadding
 from torch.utils.data import Dataset, DataLoader
-from src.common.prompts import SYSTEM_PROMPT
 from tqdm import tqdm
 import pandas as pd
 import torch
+
+import sys
+sys.path.append("../common")
+from prompts import SYSTEM_PROMPT
 
 
 class TranslationGenDS(Dataset):

@@ -6,8 +6,11 @@ os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from argparse import ArgumentParser
 from datasets import load_dataset
-from src.common.prompts import SYSTEM_PROMPT
 import torch
+
+import sys
+sys.path.append("../common")
+from prompts import SYSTEM_PROMPT
 
 
 def preprocess_function(example):
