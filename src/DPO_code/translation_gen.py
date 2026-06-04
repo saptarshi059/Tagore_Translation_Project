@@ -22,10 +22,10 @@ class TranslationGenDS(Dataset):
 def main():
     print('Loading SFT model...')
     checkpoint = '../SFT_code/bn_en_model/'
-    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
 
     base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv').to_dict('records')
-    torch_ds = TranslationGenDS(base_poems)
+    torch_ds = TranslationGenDS(base_poems, tokenizer)
     torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False)
 
     for batch in torch_dataloader:
