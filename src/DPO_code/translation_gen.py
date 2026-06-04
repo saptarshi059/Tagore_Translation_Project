@@ -15,7 +15,10 @@ class TranslationGenDS(Dataset):
     def __getitem__(self, idx):
         instance = self.ds[idx]
         tokenized_sample = self.tokenizer(instance, return_tensors='pt', padding=True)
-        return tokenized_sample
+        return {
+            "input_ids": tokenized_sample['input_ids'],
+            "attention_mask": tokenized_sample['attention_mask']
+        }
 
 
 
