@@ -14,7 +14,8 @@ from prompts import SYSTEM_PROMPT
 
 
 def preprocess_function(example):
-    return {"messages": [{"role": "user", "content": f"{SYSTEM_PROMPT}\nBENGALI: {example['bengali_version']}"}]}
+    return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
+                         {"role": "user", "content": f"BENGALI: {example['bengali_version']}"}]}
 
 
 def main(model_name):
@@ -45,7 +46,8 @@ def main(model_name):
         generated_ids = model.generate(**model_inputs, max_new_tokens=500)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-    print(f"Replicated Style (translation): {decoded_text}")
+    print(decoded_text)
+    print(f"{decoded_text.split(text)[-1]}")
 
 
 if __name__ == "__main__":
