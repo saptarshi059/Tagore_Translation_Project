@@ -30,8 +30,11 @@ def main(model_name):
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
-    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
+    model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 device_map='auto',
+                                                 dtype='auto',
+                                                 attn_implementation="flash_attention_2")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     text = tokenizer.apply_chat_template(
         dataset['messages'][0],  # Since there is only 1 test sample
