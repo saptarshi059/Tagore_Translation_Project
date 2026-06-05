@@ -38,6 +38,7 @@ def main(model_name):
         tokenize=False,
         add_generation_prompt=True,
         enable_thinking=False,
+        chat_template="../common/all_assistant.jinja"
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
@@ -47,7 +48,6 @@ def main(model_name):
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(decoded_text)
-    print(f"{decoded_text.split(text)[-1]}")
 
 
 if __name__ == "__main__":
