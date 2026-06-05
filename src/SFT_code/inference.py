@@ -34,13 +34,16 @@ def main(model_name):
                                                  device_map='auto',
                                                  dtype='auto',
                                                  attn_implementation="flash_attention_2")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    # Have to keep this flag from screwing up punctuations.
+    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     text = tokenizer.apply_chat_template(
         dataset['messages'][0],  # Since there is only 1 test sample
         tokenize=False,
         add_generation_prompt=True,
-        enable_thinking=False
+        enable_thinking=False,
+        chat_template="../common/all_assistant.jinja", # Have to use the same chat template
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
