@@ -33,8 +33,8 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     # Have to use a reworked template that supports assistant loss masking.
-    with open("../common/all_assistant.jinja", "r") as file:
-        tokenizer.chat_template = file.read()
+    #with open("../common/all_assistant.jinja", "r") as file:
+    #    tokenizer.chat_template = file.read()
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
@@ -42,7 +42,7 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
         gradient_accumulation_steps=gradient_acc_steps,
         learning_rate=lr,
         logging_steps=5,
-        assistant_only_loss=True, # Setting this to true now - otherwise it was degrading outputs.
+        assistant_only_loss=False, # Setting this to true now - otherwise it was degrading outputs.
         gradient_checkpointing=True,
     )
 

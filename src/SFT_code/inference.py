@@ -32,8 +32,8 @@ def main(model_name):
 
     # Have to keep this flag from screwing up punctuations.
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
-    with open("../common/all_assistant.jinja", "r") as file:
-        tokenizer.chat_template = file.read()
+    #with open("../common/all_assistant.jinja", "r") as file:
+    #    tokenizer.chat_template = file.read()
 
     text = tokenizer.apply_chat_template(
         dataset['messages'][0],  # Since there is only 1 test sample
@@ -45,7 +45,7 @@ def main(model_name):
 
     print('Generating...')
     with torch.no_grad():
-        generated_ids = model.generate(**model_inputs, max_new_tokens=500)
+        generated_ids = model.generate(**model_inputs, max_new_tokens=300)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(decoded_text)
