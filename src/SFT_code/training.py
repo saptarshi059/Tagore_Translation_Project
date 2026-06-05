@@ -27,11 +27,11 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
 
     model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
+    #tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
 
     # Have to use a reworked template that supports assistant loss masking.
-    with open("../common/all_assistant.jinja", "r") as file:
-        tokenizer.chat_template = file.read()
+    #with open("../common/all_assistant.jinja", "r") as file:
+    #    tokenizer.chat_template = file.read()
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
@@ -45,7 +45,7 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
 
     trainer = SFTTrainer(
         model=model,
-        processing_class=tokenizer,
+    #    processing_class=tokenizer,
         args=training_args,
         train_dataset=dataset,
     )
