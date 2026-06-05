@@ -43,9 +43,18 @@ def main(model_name):
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
+    generation_config = {
+        "temperature": 0.4,  # Lower temperature keeps the 4B model grounded
+        "top_p": 0.85,  # Slightly tighter nucleus sampling
+        "repetition_penalty": 1.15,  # Penalizes repeating identical tokens
+        "no_repeat_ngram_size": 4,  # Prevents repeating 4-word phrases entirely
+        "num_return_sequences": 3,
+        "do_sample": True
+    }
+
     print('Generating...')
     with torch.no_grad():
-        generated_ids = model.generate(**model_inputs, max_new_tokens=300)
+        generated_ids = model.generate(**model_inputs, max_new_tokens=300, **generation_config)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(decoded_text)
