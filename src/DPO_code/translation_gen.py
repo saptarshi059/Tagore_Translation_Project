@@ -41,7 +41,8 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
         dtype="auto",
-        device_map="auto"
+        device_map="auto",
+        attn_implementation="flash_attention_2"
     )
 
     base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv')

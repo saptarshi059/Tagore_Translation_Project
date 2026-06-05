@@ -14,8 +14,8 @@ from prompts import SYSTEM_PROMPT
 
 def preprocess_function(example):
     return {"messages":[{"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": f"ORIGINAL BENGALI: {example['bengali_version']}"},
-                        {"role": "assistant", "content": f"ENGLISH TRANSLATION: {example['english_version']}"}]}
+                        {"role": "user", "content": f"BENGALI: {example['bengali_version']}"},
+                        {"role": "assistant", "content": f"ENGLISH: {example['english_version']}"}]}
 
 
 def main(model_name):
@@ -25,15 +25,18 @@ def main(model_name):
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
+    model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 device_map='auto',
+                                                 dtype='auto',
+                                                 attn_implementation="flash_attention_2")
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=4,
+        gradient_accumulation_steps=8,
         learning_rate=1e-5,
         logging_steps=5,
-        assistant_only_loss=False,
+        assistant_only_loss=True, # Setting this to true now - otherwise it was degrading outputs.
         gradient_checkpointing=True,
     )
 
@@ -52,6 +55,6 @@ def main(model_name):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--model_name", default="Qwen/Qwen3-1.7B-Base")
+    parser.add_argument("--model_name", default="Qwen/Qwen3-4B-Base")
     args = parser.parse_args()
     main(args.model_name)
