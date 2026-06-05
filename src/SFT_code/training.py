@@ -39,7 +39,7 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
         gradient_accumulation_steps=gradient_acc_steps,
         learning_rate=lr,
         logging_steps=5,
-        assistant_only_loss=True, # Setting this to true now - otherwise it was degrading outputs.
+        assistant_only_loss=False, # Setting this to true now - otherwise it was degrading outputs.
         gradient_checkpointing=True,
     )
 
