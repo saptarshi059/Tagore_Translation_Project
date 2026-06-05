@@ -46,7 +46,7 @@ def main(model_name):
 
     print('Generating...')
     with torch.no_grad():
-        generated_ids = model.generate(**model_inputs, max_new_tokens=500, attn_implementation="flash_attention_2")
+        generated_ids = model.generate(**model_inputs, max_new_tokens=500)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(f"Replicated Style (translation): {decoded_text}")
