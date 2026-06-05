@@ -13,8 +13,7 @@ from prompts import SYSTEM_PROMPT
 
 
 def preprocess_function(example):
-    return {"messages":[{"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": f"BENGALI: {example['bengali_version']}"},
+    return {"messages":[{"role": "user", "content": f"{SYSTEM_PROMPT}\nBENGALI: {example['bengali_version']}"},
                         {"role": "assistant", "content": f"ENGLISH: {example['english_version']}"}]}
 
 

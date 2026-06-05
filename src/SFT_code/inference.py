@@ -14,18 +14,12 @@ from prompts import SYSTEM_PROMPT
 
 
 def preprocess_function(example):
-    return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
-                         {"role": "user", "content": f"BENGALI: {example['bengali_version']}"
-                          }]
-            }
+    return {"messages": [{"role": "user", "content": f"{SYSTEM_PROMPT}\nBENGALI: {example['bengali_version']}"}]}
 
 
 def main(model_name):
     print('Loading dataset...')
     dataset = load_dataset('csv', data_files="../../data/SFT_data/test.csv", split='train')
-
-    gold = dataset[0]['english_version']
-    print(f'Original Work (Gold): {gold}\n')
 
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
