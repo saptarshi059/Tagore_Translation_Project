@@ -15,7 +15,7 @@ from prompts import SYSTEM_PROMPT
 
 def preprocess_function(example):
     return {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
-                         {"role": "user", "content": f"ORIGINAL BENGALI: {example['bengali_version']}"}]}
+                         {"role": "user", "content": f"BENGALI: {example['bengali_version']}"}]}
 
 
 def main(model_name):
@@ -25,14 +25,12 @@ def main(model_name):
     print('Formatting dataset...')
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
-    model = AutoModelForCausalLM.from_pretrained(model_name,
-                                                 device_map='auto',
-                                                 )
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
 
     # Have to keep this flag from screwing up punctuations.
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
-    #with open("../common/all_assistant.jinja", "r") as file:
-    #    tokenizer.chat_template = file.read()
+    with open("../common/all_assistant.jinja", "r") as file:
+        tokenizer.chat_template = file.read()
 
     text = tokenizer.apply_chat_template(
         dataset['messages'][0],  # Since there is only 1 test sample
