@@ -43,7 +43,6 @@ def main(model_name):
         tokenize=False,
         add_generation_prompt=True,
         enable_thinking=False,
-        chat_template="../common/all_assistant.jinja", # Have to use the same chat template
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
