@@ -49,7 +49,9 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
         args=training_args,
         train_dataset=dataset,
     )
-    
+
+    print(f"Formatted sample...{trainer.processing_class.decode(trainer.train_dataset[0]['input_ids'])}")
+
     print("Starting training...")
     trainer.train()
 
