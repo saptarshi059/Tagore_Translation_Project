@@ -27,8 +27,7 @@ def main(model_name):
 
     model = AutoModelForCausalLM.from_pretrained(model_name,
                                                  device_map='auto',
-                                                 dtype='auto',
-                                                 attn_implementation="flash_attention_2")
+                                                 )
 
     # Have to keep this flag from screwing up punctuations.
     tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
@@ -43,14 +42,9 @@ def main(model_name):
     )
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
-    generation_config = {
-        "temperature": 0.4,  # Lower temperature keeps the 4B model grounded
-        "top_p": 0.85,  # Slightly tighter nucleus sampling
-    }
-
     print('Generating...')
     with torch.no_grad():
-        generated_ids = model.generate(**model_inputs, max_new_tokens=300, **generation_config)
+        generated_ids = model.generate(**model_inputs, max_new_tokens=300)
 
     decoded_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     print(decoded_text)
