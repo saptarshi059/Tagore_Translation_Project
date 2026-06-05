@@ -48,7 +48,7 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
 
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         args=training_args,
         train_dataset=dataset,
     )
