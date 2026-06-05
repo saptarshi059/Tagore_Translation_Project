@@ -14,8 +14,8 @@ from prompts import SYSTEM_PROMPT
 
 def preprocess_function(example):
     return {"messages":[{"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": f"BENGALI: {example['bengali_version']}"},
-                        {"role": "assistant", "content": f"ENGLISH: {example['english_version']}"}]}
+                        {"role": "user", "content": f"BENGALI POEM: {example['bengali_version']}"},
+                        {"role": "assistant", "content": f"<translation>\n{example['english_version']}\n</translation>"}]}
 
 
 def main(model_name: str, gradient_acc_steps: int, lr: float):
