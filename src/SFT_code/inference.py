@@ -46,10 +46,6 @@ def main(model_name):
     generation_config = {
         "temperature": 0.4,  # Lower temperature keeps the 4B model grounded
         "top_p": 0.85,  # Slightly tighter nucleus sampling
-        "repetition_penalty": 1.15,  # Penalizes repeating identical tokens
-        "no_repeat_ngram_size": 4,  # Prevents repeating 4-word phrases entirely
-        "num_return_sequences": 3,
-        "do_sample": True
     }
 
     print('Generating...')
