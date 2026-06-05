@@ -2,7 +2,7 @@ import os
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 os.environ['CUDA_VISIBLE_DEVICES']= "0"
 
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTConfig, SFTTrainer
 from argparse import ArgumentParser
 from datasets import load_dataset
@@ -30,10 +30,14 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
                                                  dtype='auto',
                                                  attn_implementation="flash_attention_2")
 
+    tokenizer = AutoTokenizer.from_pretrained(model_name, fix_mistral_regex=True)
+
+    # Have to use a reworked template that supports assistant loss masking.
+    with open("../common/all_assistant.jinja", "r") as file:
+        tokenizer.chat_template = file.read()
+
     training_args = SFTConfig(
         output_dir="./bn_en_model",
-        # Have to use a reworked template that supports assistant loss masking.
-        chat_template_path="../common/all_assistant.jinja",
         per_device_train_batch_size=1,
         gradient_accumulation_steps=gradient_acc_steps,
         learning_rate=lr,
@@ -44,6 +48,7 @@ def main(model_name: str, gradient_acc_steps: int, lr: float):
 
     trainer = SFTTrainer(
         model=model,
+        tokenizer=tokenizer,
         args=training_args,
         train_dataset=dataset,
     )
