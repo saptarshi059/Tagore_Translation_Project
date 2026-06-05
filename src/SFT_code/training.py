@@ -18,7 +18,7 @@ def preprocess_function(example):
                         {"role": "assistant", "content": f"ENGLISH: {example['english_version']}"}]}
 
 
-def main(model_name):
+def main(model_name: str, gradient_acc_steps: int, lr: float):
     print('Loading dataset...')
     dataset = load_dataset('csv', data_files="../../data/SFT_data/train.csv", split='train')
 
@@ -32,9 +32,11 @@ def main(model_name):
 
     training_args = SFTConfig(
         output_dir="./bn_en_model",
+        # Have to use a reworked template that supports assistant loss masking.
+        chat_template_path="../common/all_assistant.jinja",
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=8,
-        learning_rate=1e-5,
+        gradient_accumulation_steps=gradient_acc_steps,
+        learning_rate=lr,
         logging_steps=5,
         assistant_only_loss=True, # Setting this to true now - otherwise it was degrading outputs.
         gradient_checkpointing=True,
@@ -55,6 +57,8 @@ def main(model_name):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--model_name", default="Qwen/Qwen3-4B-Base")
+    parser.add_argument("--model_name", type=str, default="Qwen/Qwen3-4B-Base")
+    parser.add_argument("--gradient_acc_steps", type=int, default=8)
+    parser.add_argument("--learning_rate", type=float, default=1e-5)
     args = parser.parse_args()
-    main(args.model_name)
+    main(args.model_name, args.gradient_acc_steps, args.learning_rate)
