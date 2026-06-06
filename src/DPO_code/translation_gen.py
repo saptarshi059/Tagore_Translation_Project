@@ -24,7 +24,7 @@ class TranslationGenDS(Dataset):
     def __getitem__(self, idx):
         instance = self.ds[idx]['content']
         formatted_instance = [{"role": "system", "content": SYSTEM_PROMPT},
-                              {"role": "user", "content": f"ORIGINAL BENGALI: {instance}"}]
+                              {"role": "user", "content": f"BENGALI POEM: {instance}"}]
         text = self.tokenizer.apply_chat_template(
             formatted_instance,
             tokenize=False,
@@ -38,33 +38,29 @@ def main():
     print('Loading SFT model...')
     checkpoint = '../SFT_code/bn_en_model/'
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True, padding_side='left')
-    model = AutoModelForCausalLM.from_pretrained(
-        checkpoint,
-        dtype="auto",
-        device_map="auto",
-        attn_implementation="flash_attention_2"
-    )
+    model = AutoModelForCausalLM.from_pretrained(checkpoint, device_map="auto")
 
     base_poems = pd.read_csv('../../data/DPO_data/base_poems.csv')
     torch_ds = TranslationGenDS(base_poems, tokenizer)
     torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
 
     generations = []
+    num_generations = 3
     with torch.no_grad():
         for batch in tqdm(torch_dataloader):
             generated_ids = model.generate(
                 input_ids = batch['input_ids'].to(model.device),
                 attention_mask = batch['attention_mask'].to(model.device),
-                max_new_tokens=300,
+                max_new_tokens=500,
                 do_sample=True,
-                temperature=0.8,
-                top_p=0.9,
-                num_return_sequences=3
+#                temperature=0.8,
+#                top_p=0.9,
+                num_return_sequences=num_generations
             )
             generations.extend(tokenizer.batch_decode(generated_ids, skip_special_tokens=True))
 
     print("Saving generations...")
-    base_poems = base_poems.loc[base_poems.index.repeat(3)]
+    base_poems = base_poems.loc[base_poems.index.repeat(num_generations)]
     base_poems['raw_generations'] = generations
     base_poems.to_csv('../../data/DPO_data/raw_translations.csv', index=False)
 
