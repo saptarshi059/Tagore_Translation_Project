@@ -48,6 +48,9 @@ def main():
 
     parsed_df = pd.read_csv('../../data/DPO_data/parsed_translations.csv')
     torch_ds = TranslationGenDS(parsed_df, tokenizer)
+
+    print(f"Sample formatted data: {torch_ds[0]}")
+
     torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
 
     generations = []
