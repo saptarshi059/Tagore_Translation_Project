@@ -59,7 +59,7 @@ def main():
             generated_ids = model.generate(
                 input_ids = batch['input_ids'].to(model.device),
                 attention_mask = batch['attention_mask'].to(model.device),
-                max_new_tokens=500,
+                max_new_tokens=100,
             )
             generations.extend(tokenizer.batch_decode(generated_ids, skip_special_tokens=True))
 
