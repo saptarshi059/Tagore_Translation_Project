@@ -39,19 +39,16 @@ class TranslationGenDS(Dataset):
 
 
 def main():
-    print('Loading Judge model...')
-
     model_name = "Qwen/Qwen3-32B"
-
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
     parsed_df = pd.read_csv('../../data/DPO_data/parsed_translations.csv')
     torch_ds = TranslationGenDS(parsed_df, tokenizer)
+    torch_dataloader = DataLoader(torch_ds, batch_size=2, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
+    print(f"Sample formatted data: {tokenizer.decode(torch_ds[0]['input_ids'], skip_special_tokens=True)}")
 
-    print(f"Sample formatted data: {torch_ds[0]}")
-
-    torch_dataloader = DataLoader(torch_ds, batch_size=4, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
+    print('Loading Judge model...')
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
     generations = []
     with torch.no_grad():
