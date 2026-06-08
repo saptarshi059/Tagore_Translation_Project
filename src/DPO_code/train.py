@@ -31,7 +31,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
 
     policy = AutoModelForCausalLM.from_pretrained(checkpoint)
-    reference = AutoModelForCausalLM.from_pretrained(checkpoint, torch_dtype=torch.bfloat16)
+    reference = AutoModelForCausalLM.from_pretrained(checkpoint)
 
 
     training_args = DPOConfig(
