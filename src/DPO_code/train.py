@@ -40,12 +40,10 @@ def main():
         gradient_accumulation_steps=8,
         learning_rate=2e-6, # Drastically smaller LR because it was memorizing the data otherwise.
         logging_steps=1,
-        num_train_epochs=5,  # Give it more passes over the 80 samples
-        beta=0.1,  # Keep at 0.1 first, drop to 0.05 if still too slow
+        num_train_epochs=3,  # Give it more passes over the 80 samples
+        beta=0.05,  # Keep at 0.1 first, drop to 0.05 if still too slow
         bf16=True,
         gradient_checkpointing=True,
-        max_length=1024, # These two are to stabilize loss computation.
-        max_prompt_length=512,
     )
 
     trainer = DPOTrainer(
