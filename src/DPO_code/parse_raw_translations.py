@@ -36,4 +36,4 @@ if __name__ == "__main__":
             "translations": translations
         })
 
-    pd.DataFrame(final_rows).to_csv(base_path / "parsed_translations.csv", index=False)
+    pd.DataFrame(final_rows).to_parquet(base_path / "parsed_translations.parquet", index=False)
