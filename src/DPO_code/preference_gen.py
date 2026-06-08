@@ -4,6 +4,7 @@ os.environ['CUDA_VISIBLE_DEVICES']= "0"
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, DataCollatorWithPadding
 from torch.utils.data import Dataset, DataLoader
+from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
 import torch
@@ -42,7 +43,9 @@ def main():
     model_name = "Qwen/Qwen3-32B"
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 
-    parsed_df = pd.read_csv('../../data/DPO_data/parsed_translations.csv')
+    base_path = Path("./../data/DPO_data/")
+
+    parsed_df = pd.read_parquet(base_path / 'parsed_translations.parquet')
     torch_ds = TranslationGenDS(parsed_df, tokenizer)
     torch_dataloader = DataLoader(torch_ds, batch_size=2, shuffle=False, collate_fn=DataCollatorWithPadding(tokenizer))
     print(f"Sample formatted data: {tokenizer.decode(torch_ds[0]['input_ids'], skip_special_tokens=True)}")
@@ -62,7 +65,8 @@ def main():
 
     print("Saving generations...")
     parsed_df['raw_generations'] = generations
-    parsed_df.to_csv('../../data/DPO_data/raw_preferences.csv', index=False)
+    parsed_df.to_parquet(base_path / 'raw_preferences.parquet', index=False)
+
 
 if __name__ == "__main__":
     main()
