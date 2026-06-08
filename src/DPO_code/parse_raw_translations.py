@@ -9,7 +9,7 @@ from prompts import SYSTEM_PROMPT
 if __name__ == "__main__":
     base_path = Path("../../data/DPO_data")
 
-    raw_translations = pd.read_parquet(base_path / 'raw_translations.parquet').to_dict('records')
+    raw_translations = pd.read_csv(base_path / 'raw_translations.csv').to_dict('records')
 
     parsable_translations = []
     for row in raw_translations:
