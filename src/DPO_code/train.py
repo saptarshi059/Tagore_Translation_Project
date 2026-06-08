@@ -2,7 +2,7 @@ import os
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 os.environ['CUDA_VISIBLE_DEVICES']= "0"
 
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import DPOTrainer, DPOConfig
 from datasets import load_dataset
 import sys
@@ -25,7 +25,9 @@ def main():
     dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
 
     print('Loading SFT checkpoint...')
-    model = AutoModelForCausalLM.from_pretrained('../SFT_code/bn_en_model/', device_map='auto')
+    checkpoint = '../SFT_code/bn_en_model/'
+    model = AutoModelForCausalLM.from_pretrained(checkpoint, device_map='auto')
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
 
     training_args = DPOConfig(
         output_dir="./bn_en_model_DPO",
@@ -38,6 +40,7 @@ def main():
 
     trainer = DPOTrainer(
         model=model,
+        processing_class=tokenizer,
         args=training_args,
         train_dataset=dataset,
     )
