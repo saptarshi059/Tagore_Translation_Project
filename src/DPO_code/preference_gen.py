@@ -43,7 +43,7 @@ def main():
     model_name = "Qwen/Qwen3-32B"
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 
-    base_path = Path("./../data/DPO_data/")
+    base_path = Path("../../data/DPO_data/")
 
     parsed_df = pd.read_parquet(base_path / 'parsed_translations.parquet')
     torch_ds = TranslationGenDS(parsed_df, tokenizer)
