@@ -26,10 +26,10 @@ class TranslationGenDS(Dataset):
         instance = self.ds[idx]
         translation_string = ""
         for idx, translation in enumerate(instance['translations']):
-            translation_string += f"TRANSLATION {idx}: {translation}\n"
+            translation_string += f"TRANSLATION {idx}: {translation}\n\n"
 
         formatted_instance = [{"role": "system", "content": LLM_JUDGE_PROMPT},
-                              {"role": "user", "content": f"BENGALI POEM: {instance['content']}\n {translation_string}"}]
+                              {"role": "user", "content": f"BENGALI POEM: {instance['content']}\n\n{translation_string}"}]
         text = self.tokenizer.apply_chat_template(
             formatted_instance,
             tokenize=False,
@@ -51,7 +51,10 @@ def main():
     print(f"Sample formatted data: {tokenizer.decode(torch_ds[0]['input_ids'], skip_special_tokens=True)}")
 
     print('Loading Judge model...')
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 device_map="auto",
+                                                 attn_implementation="flash_attention_2"
+                                                 )
 
     generations = []
     with torch.no_grad():
