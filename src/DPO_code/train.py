@@ -38,8 +38,10 @@ def main():
         output_dir="./bn_en_model_DPO",
         per_device_train_batch_size=1,
         gradient_accumulation_steps=8,
-        learning_rate=5e-7, # Drastically smaller LR because it was memorizing the data otherwise.
+        learning_rate=2e-6, # Drastically smaller LR because it was memorizing the data otherwise.
         logging_steps=1,
+        num_train_epochs=5,  # Give it more passes over the 80 samples
+        beta=0.1,  # Keep at 0.1 first, drop to 0.05 if still too slow
         bf16=True,
         gradient_checkpointing=True,
         max_length=1024, # These two are to stabilize loss computation.
