@@ -53,6 +53,7 @@ def main():
     print('Loading Judge model...')
     model = AutoModelForCausalLM.from_pretrained(model_name,
                                                  device_map="auto",
+                                                 dtype=torch.float16,
                                                  attn_implementation="flash_attention_2"
                                                  )
 
