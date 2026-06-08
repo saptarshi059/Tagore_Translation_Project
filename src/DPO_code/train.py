@@ -30,8 +30,8 @@ def main():
     checkpoint = '../SFT_code/bn_en_model/'
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
 
-    policy = AutoModelForCausalLM.from_pretrained(checkpoint)
-    reference = AutoModelForCausalLM.from_pretrained(checkpoint)
+    policy = AutoModelForCausalLM.from_pretrained(checkpoint, dtype="auto")
+    reference = AutoModelForCausalLM.from_pretrained(checkpoint, dtype="auto")
 
 
     training_args = DPOConfig(
