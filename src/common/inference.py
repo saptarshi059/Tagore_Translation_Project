@@ -9,7 +9,7 @@ from datasets import load_dataset
 import torch
 
 import sys
-sys.path.append("../common")
+sys.path.append("")
 from prompts import SYSTEM_PROMPT
 
 
