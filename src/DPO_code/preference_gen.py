@@ -34,6 +34,7 @@ class TranslationGenDS(Dataset):
             formatted_instance,
             tokenize=False,
             add_generation_prompt=True,
+            enable_thinking=False,
         )
         tokenized_sample = self.tokenizer(text)
         return tokenized_sample
