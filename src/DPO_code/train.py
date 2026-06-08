@@ -15,7 +15,7 @@ def preprocess_function(example):
 
 def main():
     dataset = load_dataset("parquet", data_files="../../data/DPO_data/parsed_preferences.parquet", split='train')
-    dataset = dataset.map(preprocess_function, remove_columns=dataset.columns)
+    dataset = dataset.map(preprocess_function, remove_columns=dataset.column_names)
     print(next(iter(dataset)))
 
 if __name__ == "__main__":
