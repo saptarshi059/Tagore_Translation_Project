@@ -30,17 +30,20 @@ def main():
     checkpoint = '../SFT_code/bn_en_model/'
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, fix_mistral_regex=True)
 
-    policy = AutoModelForCausalLM.from_pretrained(checkpoint, dtype=torch.float16)
-    reference = AutoModelForCausalLM.from_pretrained(checkpoint, dtype=torch.float16)
+    policy = AutoModelForCausalLM.from_pretrained(checkpoint, dtype=torch.bfloat16)
+    reference = AutoModelForCausalLM.from_pretrained(checkpoint, dtype=torch.bfloat16)
 
 
     training_args = DPOConfig(
         output_dir="./bn_en_model_DPO",
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=4,
-        learning_rate=1e-5,
-        logging_steps=5,
+        gradient_accumulation_steps=8,
+        learning_rate=5e-7, # Drastically smaller LR because it was memorizing the data otherwise.
+        logging_steps=1,
+        bf16=True,
         gradient_checkpointing=True,
+        max_length=1024, # These two are to stabilize loss computation.
+        max_prompt_length=512,
     )
 
     trainer = DPOTrainer(
