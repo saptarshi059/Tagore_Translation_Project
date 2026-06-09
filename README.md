@@ -1,8 +1,8 @@
 ## Bengali to English poetry translation project
 
-**Background**: I started my NLP journey in 2016 working on low-resource languages, particularly Bengali. Since then, 
-I've always wanted to work on another project related to it, but never got the chance. So, this summer, I took some 
-time to do this passion project using some of the latest tools in NLP!
+**Background (Why I did this project)**: I started my NLP journey in 2016 working on low-resource languages, 
+particularly Bengali. Since then, I've always wanted to work on another project related to it, but never got the chance.
+So, this summer, I took some time to do this passion project using some of the latest tools in NLP!
 
 **Topic** (Initial Attempt): I began this project with an **extremely** ambitious setup - _Translating Rabindranath 
 Tagore's poetry to English, but in the style of William Shakespeare._ Naturally, I'd be crazy to attempt something like
@@ -17,11 +17,16 @@ to authentic as possible.**
 As such, I decided to pursue that as a more realistic goal.
 ___
 
+# PART-A: SFT
+
+The first step in training an LLM for translation, is to acquire parallel data. I describe the data acquisition process
+below, followed by my empirical observations.
+
 ## Dataset
 
-For this project, I used Rabindranath Tagore's Nobel Prize winning **Gitanjali** collection. He translated 103 poems 
-from it into English. However, figuring out the mapping proved more challenging than I thought. This is how I assembled/
-scraped the data.
+For SFT, I used Rabindranath Tagore's Nobel Prize winning **Gitanjali** collection. He translated 103 poems from it 
+into English. However, figuring out the mapping (which EN poem is the target of which BN poem) proved more challenging 
+than I thought. This is how I assembled/scraped the data.
 
 ### BN-EN Mapping
 
@@ -97,6 +102,9 @@ case. I'm providing the gold reference to start and then **worst to best** trans
 
 ### D. 4B (Trained) Translation
 
+> [!NOTE]
+> This translation was generated using the OLD_SYSTEM_PROMPT - see `src/common/prompts.py`_. I later updated it to a better one.
+
 > _In the heart where there is no fear,_ \
 > _in the mind where there is no ceiling,_ \
 > _in the intellect where there is no barrier,_ \
@@ -137,3 +145,151 @@ I would like to come back to my _Shakespearean_ translation topic in the future.
 generate that style of data to train my model. If I am stuck to my ground on not using synthetic samples, I'm not sure
 whether this would even be possible! As for my current setup, it would be fun to see if I can add an RL component to 
 see if I can create new Tagore style poetry 😅
+
+---
+
+# PART-B: DPO
+
+**Attempting Future Work**
+
+I wasn't content with stopping at SFT. As this was a passion project, I wanted to push myself further. Although I've 
+read RLHF theory, I've never gotten around to doing anything with it, mainly because none of my projects required it.
+As such, I decided to try incorporating some form of it here. The **idea** was simple: **get the SFT checkpoint to 
+generate better translations, in line with some _qualitative preferences_.** While this wasn't the future work that I
+had mentioned above, it still gave me a good reason to dabble in RLHF.
+
+I decided to use DPO (Direct Preference Optimization) over the recently popular GRPO (Group Relative PO). This is 
+because the task is more _qualitative_, i.e., it is not straightforward to create a reward function to judge how good/bad
+a poem is.
+
+Of course, it would have been great if I just had some high-quality preference data lying about. But, alas, that was
+not to be 😅. So, I had to assemble my own dataset (again) to get this party started! I'll describe the overall
+workflow I followed and the issues that came up.
+
+## Preference Data Curation
+
+Unfortunately, I had to break my resolve on no-synthetic data 🥲. If I hadn't, it would have taken me quite a long time,
+to say the least, to understand the poems and judge multiple translations. As there were many moving parts to this
+phase of the project, I decided to save myself some trouble and generate **synthetic-preference data**. Essentially,
+this makes it **RLLF (RL with LLM Feedback)** 😅.
+
+Before generating the preference data, I **re-trained the base 4B model with a new prompt which would allow for more
+structured generation, for easier parsing**. The model was trained to write its translations inside 
+`<translation> </translation>` XML tags. The data was then generated as follows,
+
+1. Sampled 100 Tagore poems, that were not a part of Gitanjali (as they were already used).
+2. Used the SFT checkpoint to generate three translations per poem. I removed those generations that could not be 
+parsed. This left some poems with only one clean generation. These samples were removed, as we need at least two to 
+ask a model to choose the best and worst one.
+3. I prompted a much stronger **Qwen3-32B** LLM to determine which translation it felt was the best, and which was the 
+worst. This also led to a few samples getting removed due to Qwen's generation errors.
+4. Ultimately, all of this yielded a small preference set of ~80 samples.
+
+## Model Training
+
+As this was the first time I've done DPO, it took a little trial and error to get the optimal hyperparameters. But, 
+the first lesson which screamed at me was, **RLHF is complex** 💀! Not only does it require a TON of compute, it's not 
+easy to optimize either. Here, I had to use two GPUs and HuggingFace accelerate to train the model in 
+DDP (Distributed Data Parallel), because fitting two models (policy/reference) on 1 card was impossible. Luckily I was 
+still on my cluster which gave me access to another 80 GB card! All hyperparameters are noted in the training script.
+
+## Evaluation
+
+Again, I used _where the mind is without fear_ to evaluate the quality of the DPO checkpoint. First, I'll provide the
+output from the new SFT trained model and then the DPO one.
+
+### A. SFT Checkpoint
+
+> _The mind that is free from fear,_ \
+> _the heart that is high, the intellect that is unshackled,_ \
+> _the home that has no walls—there, in that inwardmost chamber, the light of the day never enters._ \
+> _There the words come out from the heart’s fountain, and the stream of thought runs from country to country, from shore to shore, in a myriad channels of meaning._ \
+> _There the petty rules of usage have no hold, and the stream of action runs strong and free, unchecked by the censorious eye._ \
+> _There the master hand guides the work of every moment, and there the touch of the cruel is never felt._ \
+> _O bring thy heaven of joy to this land._
+
+### B. SFT + DPO Checkpoint
+
+> _Where the heart is free from fear, where the head is high_, \
+> _Where the mind is unshackled, there the walls of the house are not built, and the light of the universal day shines in the inner court._ \
+> _Where speech comes from the fountain of the heart and breaks forth in streams of varied meanings,_ \
+> _Where the river of action flows from land to land, from shore to shore, in countless channels of usefulness, there customs and laws are not fetters, and the strong man is not lord._ \
+> _Where thou art ever the master of all work, the lord of thought and feeling, there the cruel stroke of tyranny is not felt,_ \
+> _O my father, let thy country awake._
+
+## Discussion
+
+I make the following observations, 
+
+**SFT Output**: The new SFT output is slightly inferior to the previous one. I believe that this is due to the additional format
+constraint that I imposed for the model. Despite that, it does capture some imagery well, such as _intellect that is unshackled_ and
+_mind that is free from fear_. Overall, it's a decent first attempt translation, but it does lack the poetic edge that we are looking for.
+
+**SFT + DPO**: Now that the model has learned _what_ to translate (SFT), it needs to pickup cues on what separates a good from a bad
+translation, which is enabled by DPO. As we can see here, this comes through in this phase. Consider these,
+
+| SFT Only 👎                               | SFT + DPO 👍                                    |
+|-------------------------------------------|-------------------------------------------------|
+| _touch of the cruel is never felt_        | _there the cruel stroke of tyranny is not felt_ |
+| _O bring thy heaven of joy to this land._ | _O my father, let thy country awake._           |
+
+These translations not only _feels_ more coherent, but are surprisingly more accurate! This is incredible to witness! At
+4B parameters, we have been pushing the limits of what these models can do! Just by using a decent size dataset, with a
+mix of synthetic + human curated information, we are able to view capabilities similar to an early career literary 
+expert.
+
+---
+
+# Lessons Learned 
+
+These are certain takeaways from this project, either from a qualitative/engineering perspective,
+
+**Be cautious with Flash Attention 🚧**: When I tried SFT training with Flash Attention (FA), I noticed that while the loss was steadily dropping,
+the resulting model was qualitatively quite poor. It was generating text in different languages, doing endless repetitions, etc. I think 
+for such a complex task + model scale, the optimization tricks employed by FA kind of wrecks the model. On the other hand, when doing 
+inference with the 32B model, FA is fine, which indicates that at scale, the model is more resilient to those tricks. 
+
+**Look beyond loss 🔍**: Just because the loss decreases doesn't necessarily mean you have a better model. Keep on checking whether the model 
+qualitatively achieves what you are looking for.
+
+**Challenge conventional wisdom 🧑‍⚖️**: Usually, it is recommended to compute loss for assistant tokens only during SFT.
+However, as the size of the dataset is small, the task is complex, and the model has to juggle two languages, I felt 
+that it would be better to use regular causal loss. My intuition was right! When I trained the model with the recommended 
+strategy, the performance degraded because the model simply did not have enough samples to learn the instructions well.
+
+**RL is scary 🧟**: While it is exciting, RL does take much more time to truly appreciate and implement. The number of 
+hyperparameters, hardware requirements, and overall method complexities, make it less straightforward to use.
+
+**DPO learning rate**: I've heard RL algorithms to be notoriously difficult to optimize. However, I experienced that with this
+project! When I used the same SFT learning rate here, the loss jumped from an astronomically high value to 0 in just 1 step. So,
+I had to drastically reduce the learning rate which made training more stable.
+
+**DPO Coin Flip 🪙**: If you see your DPO training loss to be around 0.69, that's essentially, ln(2). This means, that 
+the model is unsure of either the chosen/rejected preference. If the final training loss stays at this value, then you know
+that your model really hasn't learned anything. So, experiment with the learning rate, and other parameters to try to 
+lower that loss - but not too much though, othewise it'll overfit 😅
+
+___
+
+# Code Execution Instructions
+
+Everything works with Python 3.9. Just have `torch, transformers, trl, accelerate` installed. You will need 1 80 GB GPU
+for SFT and 2 for DPO. Follow these steps to reproduce the results. The dataset is already generated so you can skip
+that part.
+
+## SFT
+
+SFT scripts are located inside `src/SFT_code/`
+
+1. Data is processed inside `Raw Data Processing.ipynb`
+2. Training data and main evaluation sample generated by `train_test_data_gen.py`.
+3. Model is trained with `training.py`
+
+## DPO
+
+DPO scripts are located inside `src/DPO_code/`
+
+1. Sample 100 poems using `dpo_sample_data.py`
+2. Generate and parse translations with `translation_gen.py` and `parse_raw_translations.py`
+3. Generate and parse preferences with `preference_gen.py` and `parse_raw_preferences.py`
+4. Finally, train the model with `acclerate launch train.py` (Make sure to config accelerate for multi-GPU/bf16 training.)
