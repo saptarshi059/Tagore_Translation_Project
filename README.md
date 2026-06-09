@@ -103,7 +103,7 @@ case. I'm providing the gold reference to start and then **worst to best** trans
 ### D. 4B (Trained) Translation
 
 > [!NOTE]
-> This translation was generated using the OLD_SYSTEM_PROMPT - see `src/common/prompts.py`_. I later updated it to a better one.
+> This translation was generated using the OLD_SYSTEM_PROMPT - see `src/common/prompts.py`. I later updated it to a better one.
 
 > _In the heart where there is no fear,_ \
 > _in the mind where there is no ceiling,_ \
